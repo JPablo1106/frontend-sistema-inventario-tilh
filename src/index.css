@@ -1,0 +1,161 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&family=Monoton:wght@200;300;400;500;600;700;800&display=swap");
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  list-style: none;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Sidebar container */
+.sidebar {
+  color: #fff;
+  width: 100%;
+  max-width: 280px;
+  min-width: 200px;
+  height: 100vh; /* Cambia a viewport height para asegurar altura completa */
+  min-height: 100vh; /* Asegura altura mínima igual a la ventana */
+  overflow-y: auto; /* Permite desplazamiento si el contenido es demasiado alto */
+  transition: all 0.3s ease;
+  position: sticky; /* Mantiene el sidebar visible al desplazarse */
+  top: 0; /* Alinea con la parte superior */
+  display: flex;
+  flex-direction: column; /* Organiza el contenido verticalmente */
+}
+
+/* Logo section */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: clamp(8px, 2vw, 10px);
+  margin-bottom: clamp(5px, 1vw, 10px);
+}
+
+.logo-icon {
+  width: clamp(30px, 5vw, 40px);
+  height: clamp(30px, 5vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  border-radius: 50%;
+  background: rgba(28, 17, 41, 0.88);
+}
+
+/* Menu section */
+.menu-bar {
+  flex: 1; /* Hace que el menú ocupe todo el espacio disponible */
+  margin-top: clamp(1rem, 3vh, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vh, 15px);
+  font-size: clamp(0.80rem, 0.85vw, 1.2rem);
+  position: relative;
+  overflow-y: auto; /* Permite desplazamiento dentro del menú si es necesario */
+}
+
+/* Theme toggle button */
+.toggle-theme-btn {
+  position: relative; /* Cambia de absolute a relative */
+  margin-top: auto; /* Empuja el botón hacia abajo */
+  padding-bottom: clamp(20px, 4vh, 30px);
+  padding-top: clamp(10px, 2vh, 15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  width: calc(100% - clamp(20px, 4vw, 40px)); /* Mantiene responsive al ancho del sidebar */
+}
+
+.toggle {
+  margin-left: clamp(10px, 2vw, 15px);
+}
+
+/* Media queries for different screen sizes */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    max-width: 240px;
+    min-width: 180px;
+  }
+
+  .menu-bar {
+    gap: 10px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .sidebar {
+    max-width: 220px;
+    min-width: 160px;
+  }
+
+  .logo-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .toggle-theme-btn {
+    padding-bottom: 15px;
+  }
+}
+
+/* For very small screens or mobile view */
+@media screen and (max-width: 480px) {
+  .sidebar {
+    max-width: 100%;
+    min-width: auto;
+    width: 100%;
+    height: auto; /* Cambia para vista móvil */
+    min-height: auto; /* Ajusta para vista móvil */
+    position: relative; /* Revertir sticky para móvil */
+  }
+
+  /* Optional: Convert to horizontal sidebar for mobile */
+  .menu-bar {
+    height: auto;
+    flex: none; /* Revertir flex para móvil */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+    margin-top: 0;
+  }
+
+  .toggle-theme-btn {
+    position: relative;
+    margin-top: 10px; /* Ajuste para móvil */
+    padding-bottom: 10px;
+    padding-top: 0;
+    width: auto;
+  }
+}
+
+/* Optional: Add a collapsed state for the sidebar */
+.sidebar.collapsed {
+  max-width: 60px;
+  min-width: 60px;
+}
+
+.sidebar.collapsed .logo {
+  justify-content: center;
+}
+
+.sidebar.collapsed .menu-bar {
+  align-items: center;
+}
+
+.sidebar.collapsed .toggle-theme-btn {
+  width: auto;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.sidebar.collapsed .toggle {
+  display: none;
+}
