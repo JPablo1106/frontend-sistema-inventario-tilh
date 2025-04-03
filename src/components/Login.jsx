@@ -5,7 +5,8 @@ import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash, FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Login.css";
-import login from '../img/invCompuLogin.jpg'
+import login from '../img/invCompuLogin.jpg';
+import logo from '../img/logo.png';
 
 const Login = () => {
   const [usuario, setUsuario] = useState("");
@@ -93,7 +94,7 @@ const Login = () => {
 
         <div className="col-lg-6 col-md-8 col-sm-12 login-form-container">
           <div className="login-header">
-            <img src="/src/img/logo.png" alt="Logo" className="login-logo" />
+            <img src={logo} alt="Logo" className="login-logo" />
             <hr />
             <h3 className="login-title">Iniciar Sesión</h3>
             <p className="login-subtitle">
