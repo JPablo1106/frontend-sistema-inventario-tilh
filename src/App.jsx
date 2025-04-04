@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Button, Layout, theme, Dropdown, Menu } from 'antd';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { FaUserCircle } from 'react-icons/fa';
@@ -19,6 +20,8 @@ import ComponentesTelefono from './components/componentes/ComponentesTelefono';
 import ComponentesTeclados from './components/componentes/ComponentesTeclados';
 import ComponentesMonitores from './components/componentes/ComponentesMonitores';
 import ComponentesMouse from './components/componentes/ComponentesMouse';
+import Asignaciones from './components/asignaciones/Asignaciones';
+import ActualizarAsignacion from './components/asignaciones/ActualizarAsignacion';
 
 const { Header, Sider, Content } = Layout;
 
@@ -34,11 +37,38 @@ export default function App() {
     const nombreAdmin = localStorage.getItem("nombreAdmin") || "Usuario";
 
     // Manejo de cierre de sesión
-    const handleLogout = () => {
-        localStorage.removeItem("jwt");
-        localStorage.removeItem("nombreAdmin");
-        localStorage.removeItem("usuario");
-        navigate("/");
+    const handleLogout = async () => {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const jwt = localStorage.getItem("jwt");
+    
+        if (!refreshToken || !jwt) {
+            console.error("No hay token disponible");
+            localStorage.clear();
+            navigate("/");
+            return;
+        }
+    
+        try {
+            await axios.post(
+                "https://backendsistemainventario.onrender.com/api/Administrador/Logout", // Reemplaza con la URL real de tu API
+                { refreshToken },
+                {
+                    headers: {
+                        Authorization: `Bearer ${jwt}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+    
+            // Limpiar el localStorage
+            localStorage.clear();
+            navigate("/");
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+            // Limpiar localStorage incluso si la petición falla
+            localStorage.clear();
+            navigate("/");
+        }
     };
 
     // Menú desplegable del usuario
@@ -91,6 +121,9 @@ export default function App() {
                         <Route path='/componentes/monitores' element={<ComponentesMonitores />} />
                         <Route path='/componentes/mouse' element={<ComponentesMouse />} />
                         <Route path='/asignaciones/registro-asignacion' element={<RegistrarAsignacion />} />
+                        <Route path='/asignaciones' element={<Asignaciones />} />
+                        <Route path='/asignaciones/actualizar-asignacion/:id' element={<ActualizarAsignacion />} />
+                        
                     </Routes>
                 </Content>
             </Layout>

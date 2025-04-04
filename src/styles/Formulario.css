@@ -1,0 +1,143 @@
+/* Estilos comunes para todos los formularios */
+
+/* Estilos para las tarjetas */
+.card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Estilos para los contenedores de iconos */
+  .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card:hover .icon-container {
+    transform: scale(1.1);
+  }
+  
+  /* Estilos para los botones */
+  .btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilos para los títulos */
+  h2.fw-bold {
+    position: relative;
+    padding-bottom: 10px;
+  }
+  
+  h2.fw-bold:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--bs-primary);
+    border-radius: 3px;
+  }
+  
+  /* Estilos para las alertas */
+  .alert {
+    border-radius: 10px;
+    border-left-width: 4px;
+  }
+  
+  /* Estilos para los campos de formulario */
+  .form-control,
+  .form-select {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+  
+  .input-group-text {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  
+  /* Estilos para el spinner de carga */
+  .spinner-border {
+    animation-duration: 1.5s;
+  }
+  
+  /* Estilos para los mensajes de error */
+  .invalid-feedback {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Estilos para las etiquetas de formulario */
+  .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+  }
+  
+  /* Estilos para las secciones del formulario */
+  .section-title h5 {
+    font-weight: 600;
+  }
+  
+  .section-title hr {
+    opacity: 0.2;
+    margin-bottom: 1rem;
+  }
+  
+  /* Estilos para react-select */
+  .react-select-container .react-select__control {
+    border-radius: 8px;
+    border-color: #ced4da;
+    box-shadow: none;
+    transition: all 0.2s ease;
+  }
+  
+  .react-select-container .react-select__control:hover {
+    border-color: #adb5bd;
+  }
+  
+  .react-select-container .react-select__control--is-focused {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+  
+  .react-select-container .react-select__menu {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .react-select-container .react-select__option--is-selected {
+    background-color: #0d6efd;
+  }
+  
+  .react-select-container .react-select__option:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+  
+  
