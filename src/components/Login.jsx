@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaEye, FaEyeSlash, FaUser, FaLock, FaSignInAlt } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUser, FaLock, FaSignInAlt, FaUserPlus } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Login.css";
 import login from '../img/invCompuLogin.jpg';
@@ -73,7 +73,6 @@ const Login = () => {
       });
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -170,7 +169,20 @@ const Login = () => {
             </div>
           </form>
 
-          <div className="login-footer">
+          {/* Sección para registrarse */}
+          <div className="register-section mt-4 text-center">
+            <hr />
+            <p>¿No tienes cuenta?</p>
+            <button
+              type="button"
+              className="btn btn-secondary btn-register"
+              onClick={() => navigate("/register")}
+            >
+              <FaUserPlus className="me-2" /> Registrarse
+            </button>
+          </div>
+
+          <div className="login-footer mt-4">
             <p>© {new Date().getFullYear()} Sistema de Inventario. Todos los derechos reservados.</p>
           </div>
         </div>
