@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"

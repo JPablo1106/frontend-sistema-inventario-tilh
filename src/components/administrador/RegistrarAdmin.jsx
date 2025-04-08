@@ -1,74 +1,76 @@
 import "bootstrap/dist/css/bootstrap.min.css"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
-import { FaEye, FaEyeSlash, FaUser, FaLock, FaSignInAlt, FaUserPlus } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaUser, FaLock, FaUserPlus, FaSignInAlt } from "react-icons/fa"
 import axios from "axios"
-import "../styles/Login.css"
-import login from "../img/invCompuLogin.jpg"
-import logo from "../img/logo.png"
+import "../../styles/Login.css"
+import registerImage from "../../img/invCompuLogin.jpg"
+import logo from "../../img/logo.png"
 
-const Login = () => {
+const RegistrarAdmin = () => {
+  const [nombreAdmin, setNombreAdmin] = useState("")
   const [usuario, setUsuario] = useState("")
   const [contraseña, setContraseña] = useState("")
+  const [confirmarContraseña, setConfirmarContraseña] = useState("")
   const [mostrarContraseña, setMostrarContraseña] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Verificar si ya hay una sesión activa
-  useEffect(() => {
-    const token = localStorage.getItem("jwt")
-    if (token) {
-      navigate("/dashboard", { replace: true })
-    }
-  }, [navigate])
+  const redirigirLogin = () => {
+    // Navegar a la ruta "/" sin dejar un historial de navegación
+    navigate("/", { replace: true });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setIsLoading(true)
 
+    // Validación de que las contraseñas sean iguales
+    if (contraseña !== confirmarContraseña) {
+      Swal.fire({
+        icon: "warning",
+        title: "Contraseñas no coinciden",
+        text: "Por favor, asegúrate de que la contraseña y la confirmación sean iguales.",
+        confirmButtonColor: "#2563eb",
+      })
+      return
+    }
+
+    setIsLoading(true)
     try {
       const { data, status } = await axios.post(
-        "https://backendsistemainventario.onrender.com/api/Administrador/Login",
-        { usuario, contraseña },
+        "https://backendsistemainventario.onrender.com/api/Administrador/Registrarse",
+        { nombreAdmin, usuario, contraseña },
         {
           headers: {
             Accept: "*/*",
             "Content-Type": "application/json",
           },
-        },
+        }
       )
 
       setIsLoading(false)
-
-      if (status === 200 && data.token) {
-        // Guardar en localStorage
-        localStorage.setItem("jwt", data.token)
-        localStorage.setItem("refreshToken", data.refreshToken)
-        localStorage.setItem("expira", data.expira)
-        localStorage.setItem("nombreAdmin", data.nombreAdmin)
-        localStorage.setItem("usuario", data.usuario)
-
+      if (status === 200) {
         Swal.fire({
           icon: "success",
-          title: `¡Bienvenido, ${data.nombreAdmin}!`,
-          text: "Inicio de sesión exitoso",
+          title: "Registro exitoso",
+          text: "El administrador se ha registrado correctamente.",
           showConfirmButton: false,
           timer: 1500,
           customClass: {
             popup: "animated fadeInDown",
           },
         }).then(() => {
-          navigate("/dashboard", { replace: true })
+          navigate("/", { replace: true })
         })
       }
     } catch (error) {
       setIsLoading(false)
-      console.error("Error en el login:", error)
+      console.error("Error en el registro:", error)
       Swal.fire({
         icon: "error",
-        title: "Error de autenticación",
-        text: "Usuario o contraseña incorrectos",
+        title: "Error en el registro",
+        text: error.response?.data?.message || "No se pudo registrar el administrador",
         confirmButtonColor: "#2563eb",
       })
     }
@@ -78,7 +80,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card row g-0">
         <div className="col-lg-6 d-none d-lg-flex login-image-container">
-          <img src={login || "/placeholder.svg"} alt="Sistema de Inventario" className="login-image" />
+          <img src={registerImage || "/placeholder.svg"} alt="Registro de Administrador" className="login-image" />
           <div className="login-image-overlay">
             <div className="login-image-text">
               <h2>Sistema de Inventario</h2>
@@ -93,13 +95,32 @@ const Login = () => {
             <div className="login-divider">
               <span className="login-divider-text">Sistema de Inventario</span>
             </div>
-            <h3 className="login-title">Iniciar Sesión</h3>
+            <h3 className="login-title">Registro de Administrador</h3>
             <p className="login-subtitle">
-              Bienvenido al <strong>Sistema de Inventario de Equipos Tecnológicos</strong>
+              Ingresa los datos para crear una nueva cuenta de administrador.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group mb-4">
+              <label className="form-label">
+                <FaUser className="icon-label" /> Nombre del Administrador
+              </label>
+              <div className="input-group">
+                <span className="input-group-text">
+                  <FaUser />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Ingrese su nombre completo"
+                  value={nombreAdmin}
+                  onChange={(e) => setNombreAdmin(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="form-group mb-4">
               <label className="form-label">
                 <FaUser className="icon-label" /> Usuario
@@ -146,9 +167,22 @@ const Login = () => {
             </div>
 
             <div className="form-group mb-4">
-              <a className="forgot-password" onClick={() => navigate("/restablecer-contrasena")}>
-                ¿Olvidó su contraseña?
-              </a>
+              <label className="form-label">
+                <FaLock className="icon-label" /> Confirmar Contraseña
+              </label>
+              <div className="input-group">
+                <span className="input-group-text">
+                  <FaLock />
+                </span>
+                <input
+                  type={mostrarContraseña ? "text" : "password"}
+                  className="form-control"
+                  placeholder="Confirme su contraseña"
+                  value={confirmarContraseña}
+                  onChange={(e) => setConfirmarContraseña(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             <div className="form-group mb-4">
@@ -156,11 +190,11 @@ const Login = () => {
                 {isLoading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2"></span>
-                    Autenticando...
+                    Registrando...
                   </>
                 ) : (
                   <>
-                    <FaSignInAlt className="me-2" /> Iniciar Sesión
+                    <FaUserPlus className="me-2" /> Registrarse
                   </>
                 )}
               </button>
@@ -169,10 +203,10 @@ const Login = () => {
 
           <div className="register-section">
             <div className="register-divider">
-              <span>¿No tienes credenciales?</span>
+              <span>¿Ya tienes una cuenta?</span>
             </div>
-            <button type="button" className="btn btn-secondary btn-register" onClick={() => navigate("/registrarse")}>
-              <FaUserPlus className="me-2" /> Registrate
+            <button type="button" className="btn btn-secondary btn-register" onClick={redirigirLogin}>
+              <FaSignInAlt className="me-2" /> Inicia Sesión
             </button>
           </div>
 
@@ -185,5 +219,4 @@ const Login = () => {
   )
 }
 
-export default Login
-
+export default RegistrarAdmin

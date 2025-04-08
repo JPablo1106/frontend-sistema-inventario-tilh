@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Layout, theme, Dropdown, Menu } from 'antd';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
@@ -33,6 +33,15 @@ export default function App() {
         token: { colorBgContainer },
     } = theme.useToken();
 
+    // Validar si el usuario está logueado. Si no, redirigir a login
+    useEffect(() => {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) {
+            // Redirigir y reemplazar el historial de navegación
+            navigate("/", { replace: true });
+        }
+    }, [navigate]);
+
     // Obtener el nombre de usuario desde localStorage
     const nombreAdmin = localStorage.getItem("nombreAdmin") || "Usuario";
 
@@ -40,14 +49,14 @@ export default function App() {
     const handleLogout = async () => {
         const refreshToken = localStorage.getItem("refreshToken");
         const jwt = localStorage.getItem("jwt");
-    
+
         if (!refreshToken || !jwt) {
             console.error("No hay token disponible");
             localStorage.clear();
-            navigate("/");
+            navigate("/login", { replace: true });
             return;
         }
-    
+
         try {
             await axios.post(
                 "https://backendsistemainventario.onrender.com/api/Administrador/Logout", // Reemplaza con la URL real de tu API
@@ -59,15 +68,15 @@ export default function App() {
                     }
                 }
             );
-    
-            // Limpiar el localStorage
+
+            // Limpiar el localStorage y redirigir
             localStorage.clear();
-            navigate("/");
+            navigate("/login", { replace: true });
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
             // Limpiar localStorage incluso si la petición falla
             localStorage.clear();
-            navigate("/");
+            navigate("/login", { replace: true });
         }
     };
 
@@ -86,20 +95,32 @@ export default function App() {
 
     return (
         <Layout>
-            <Sider collapsed={collapsed}
+            <Sider
+                collapsed={collapsed}
                 collapsible
                 trigger={null}
-                theme='dark' className='sidebar'>
+                theme='dark'
+                className='sidebar'
+            >
                 <Logo />
                 <MenuList darkTheme='dark' />
             </Sider>
             <Layout>
-                <Header style={{ padding: "0 16px", background: colorBgContainer, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Button type='text'
+                <Header
+                    style={{
+                        padding: "0 16px",
+                        background: colorBgContainer,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
+                    }}
+                >
+                    <Button
+                        type='text'
                         className='toggle'
                         onClick={() => setCollapsed(!collapsed)}
-                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} />
-
+                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                    />
                     {/* Icono de usuario con menú desplegable */}
                     <Dropdown overlay={userMenu} trigger={['click']}>
                         <FaUserCircle size={24} style={{ cursor: "pointer" }} />
@@ -123,7 +144,6 @@ export default function App() {
                         <Route path='/asignaciones/registro-asignacion' element={<RegistrarAsignacion />} />
                         <Route path='/asignaciones' element={<Asignaciones />} />
                         <Route path='/asignaciones/actualizar-asignacion/:id' element={<ActualizarAsignacion />} />
-                        
                     </Routes>
                 </Content>
             </Layout>
