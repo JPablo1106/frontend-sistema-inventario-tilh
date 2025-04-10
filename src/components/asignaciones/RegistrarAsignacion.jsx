@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from '../extras/axiosIntance'
 import Swal from "sweetalert2"
 import Select from "react-select"
 import {
@@ -61,10 +61,10 @@ const RegistrarAsignacion = () => {
 
       try {
         const [usuariosRes, equiposRes, componentesRes, equiposSeguridadRes] = await Promise.all([
-          axios.get("https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarios", getAuthConfig()),
-          axios.get("https://backendsistemainventario.onrender.com/api/equipos/ConsultarEquipos", getAuthConfig()),
-          axios.get("https://backendsistemainventario.onrender.com/api/Componentes/ConsultarComponentes", getAuthConfig()),
-          axios.get("https://backendsistemainventario.onrender.com/api/equiposSeguridad/ConsultarEquiposSeguridad", getAuthConfig()),
+          api.get("usuarios/ConsultarUsuarios", getAuthConfig()),
+          api.get("equipos/ConsultarEquipos", getAuthConfig()),
+          api.get("Componentes/ConsultarComponentes", getAuthConfig()),
+          api.get("equiposSeguridad/ConsultarEquiposSeguridad", getAuthConfig()),
         ])
 
         setUsuarios(usuariosRes.data)
@@ -217,8 +217,8 @@ const RegistrarAsignacion = () => {
     }
 
     try {
-      const response = await axios.post(
-        "https://backendsistemainventario.onrender.com/api/Asignaciones/RegistrarAsignacion",
+      const response = await api.post(
+        "Asignaciones/RegistrarAsignacion",
         payload,
         getAuthConfig(),
       )

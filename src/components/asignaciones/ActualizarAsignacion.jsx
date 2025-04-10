@@ -1,9 +1,6 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { useNavigate, useParams } from "react-router-dom"
-import axios from "axios"
 import Swal from "sweetalert2"
 import Select from "react-select"
 import {
@@ -21,6 +18,7 @@ import {
 } from "react-icons/fa"
 import { BsPcDisplay } from "react-icons/bs"
 import "../../styles/Formulario.css"
+import api from "../extras/axiosIntance"
 
 const ActualizarAsignacion = () => {
   const navigate = useNavigate()
@@ -64,14 +62,14 @@ const ActualizarAsignacion = () => {
 
       try {
         const [usuariosRes, equiposRes, componentesRes, equiposSeguridadRes] = await Promise.all([
-          axios.get("https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarios", getAuthConfig()),
-          axios.get("https://backendsistemainventario.onrender.com/api/equipos/ConsultarEquipos", getAuthConfig()),
-          axios.get(
-            "https://backendsistemainventario.onrender.com/api/Componentes/ConsultarComponentes",
+          api.get("usuarios/ConsultarUsuarios", getAuthConfig()),
+          api.get("equipos/ConsultarEquipos", getAuthConfig()),
+          api.get(
+            "Componentes/ConsultarComponentes",
             getAuthConfig(),
           ),
-          axios.get(
-            "https://backendsistemainventario.onrender.com/api/equiposSeguridad/ConsultarEquiposSeguridad",
+          api.get(
+            "equiposSeguridad/ConsultarEquiposSeguridad",
             getAuthConfig(),
           ),
         ])
@@ -98,9 +96,9 @@ const ActualizarAsignacion = () => {
   // Cargar datos de la asignación a editar
   useEffect(() => {
     setLoadingData(true)
-    axios
+    api
       .get(
-        `https://backendsistemainventario.onrender.com/api/Asignaciones/ConsultarAsignacionId/${id}`,
+        `Asignaciones/ConsultarAsignacionId/${id}`,
         getAuthConfig(),
       )
       .then((response) => {
@@ -270,8 +268,8 @@ const ActualizarAsignacion = () => {
     }
 
     try {
-      await axios.post(
-        "https://backendsistemainventario.onrender.com/api/Asignaciones/ActualizarAsignacion",
+      await api.post(
+        "Asignaciones/ActualizarAsignacion",
         payload,
         getAuthConfig(),
       )

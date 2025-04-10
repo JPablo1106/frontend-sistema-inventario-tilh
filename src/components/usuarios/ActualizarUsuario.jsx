@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import Swal from "sweetalert2"
 import {
   FaUser,
@@ -61,8 +61,8 @@ const ActualizarUsuario = () => {
       try {
         const token = localStorage.getItem("jwt")
         // Cambia la URL según tu API. Se asume un endpoint para consultar un usuario por ID.
-        const response = await axios.get(
-          `https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarioPorId/${idUsuario}`,
+        const response = await api.get(
+          `usuarios/ConsultarUsuarioPorId/${idUsuario}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
         const usuarioData = response.data
@@ -106,8 +106,8 @@ const ActualizarUsuario = () => {
 
       const token = localStorage.getItem("jwt")
       // Cambia la URL de acuerdo a tu endpoint de actualización
-      await axios.put(
-        `https://backendsistemainventario.onrender.com/api/usuarios/ActualizarUsuario`,
+      await api.put(
+        `usuarios/ActualizarUsuario`,
         {
           idUsuario: parseInt(idUsuario),
           NombreUsuario: nombreUsuario,

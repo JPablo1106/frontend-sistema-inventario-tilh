@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import {
   FaEdit,
   FaTrash,
@@ -42,7 +42,7 @@ const Usuarios = () => {
 
     try {
       const token = localStorage.getItem("jwt")
-      const response = await axios.get("https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarios", {
+      const response = await api.get("usuarios/ConsultarUsuarios", {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -89,7 +89,7 @@ const Usuarios = () => {
       if (result.isConfirmed) {
         try {
           const token = localStorage.getItem("jwt")
-          await axios.delete(`https://backendsistemainventario.onrender.com/api/usuarios/EliminarUsuario/${id}`, {
+          await api.delete(`usuarios/EliminarUsuario/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           Swal.fire({

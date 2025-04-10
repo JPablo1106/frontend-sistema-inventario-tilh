@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import Swal from "sweetalert2"
 import {
   FaUser,
@@ -75,8 +75,8 @@ const RegistrarUsuario = () => {
       })
 
       const token = localStorage.getItem("jwt")
-      const usuarioResponse = await axios.post(
-        "https://backendsistemainventario.onrender.com/api/usuarios/RegistrarUsuario",
+      const usuarioResponse = await api.post(
+        "usuarios/RegistrarUsuario",
         {
           NombreUsuario: nombreUsuario,
           Area: area,

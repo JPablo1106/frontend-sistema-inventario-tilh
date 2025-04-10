@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import { FaSearch, FaPlus, FaFileExcel, FaSync, FaInfoCircle, FaShieldAlt } from "react-icons/fa"
 import Swal from "sweetalert2"
 import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table"
@@ -34,8 +34,8 @@ const EquiposSeguridad = () => {
 
     try {
       const token = localStorage.getItem("jwt")
-      const response = await axios.get(
-        "https://backendsistemainventario.onrender.com/api/Asignaciones/ConsultarAsignaciones",
+      const response = await api.get(
+        "Asignaciones/ConsultarAsignaciones",
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { tipo: "seguridad" },

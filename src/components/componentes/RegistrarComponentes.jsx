@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import api from '../extras/axiosIntance';
 import Swal from 'sweetalert2';
 import { 
   FaPaperPlane, 
@@ -97,8 +97,8 @@ const RegistrarComponentes = () => {
             });
             
             const token = localStorage.getItem("jwt");
-            await axios.post(
-                'https://backendsistemainventario.onrender.com/api/Componentes/RegistrarComponente',
+            await api.post(
+                'Componentes/RegistrarComponente',
                 {
                     tipoComponente,
                     marcaComponente,

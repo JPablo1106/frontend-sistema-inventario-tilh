@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import Swal from "sweetalert2"
 import { FaPaperPlane, FaTrademark, FaTimes, FaInfoCircle, FaArrowLeft, FaShieldAlt } from "react-icons/fa"
 import { MdElectricMeter, MdElectricalServices } from "react-icons/md"
@@ -75,8 +75,8 @@ const RegistrarEquipoSeg = () => {
       })
 
       const token = localStorage.getItem("jwt")
-      const equipoSegResponse = await axios.post(
-        "https://backendsistemainventario.onrender.com/api/EquiposSeguridad/RegistrarEquipoSeguridad",
+      const equipoSegResponse = await api.post(
+        "EquiposSeguridad/RegistrarEquipoSeguridad",
         {
           marca,
           modelo,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import axios from "axios"
+import api from "./extras/axiosIntance"
 import Swal from "sweetalert2"
 import {
   FaDesktop,
@@ -42,8 +42,8 @@ export default function Dashboard() {
     setError(false)
 
     try {
-      const response = await axios.get(
-        "https://backendsistemainventario.onrender.com/api/Asignaciones/ConteoAsignaciones",
+      const response = await api.get(
+        "Asignaciones/ConteoAsignaciones",
         getAuthConfig(),
       )
 

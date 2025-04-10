@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
 import { FaSearch, FaFileExcel, FaEdit, FaTrash, FaSync, FaInfoCircle, FaClipboardList, FaPlus } from "react-icons/fa"
 import Swal from "sweetalert2"
 import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "../../styles/Asignaciones.css"
+import api from '../extras/axiosIntance'
 
 // Importar ExcelJS y FileSaver
 import ExcelJS from "exceljs"
@@ -33,8 +33,8 @@ const Asignaciones = () => {
 
     try {
       const token = localStorage.getItem("jwt")
-      const response = await axios.get(
-        "https://backendsistemainventario.onrender.com/api/Asignaciones/ConsultarAsignacionesCompletas",
+      const response = await api.get(
+        "Asignaciones/ConsultarAsignacionesCompletas",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -445,8 +445,8 @@ const Asignaciones = () => {
                     if (result.isConfirmed) {
                       try {
                         const token = localStorage.getItem("jwt")
-                        await axios.delete(
-                          `https://backendsistemainventario.onrender.com/api/Asignaciones/EliminarAsignacion/${row.original.idAsignacion}`,
+                        await api.delete(
+                          `Asignaciones/EliminarAsignacion/${row.original.idAsignacion}`,
                           {
                             headers: { Authorization: `Bearer ${token}` },
                           },

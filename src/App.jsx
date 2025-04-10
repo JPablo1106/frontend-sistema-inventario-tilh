@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './components/extras/axiosIntance';
 import { Button, Layout, theme, Dropdown, Menu } from 'antd';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { FaUserCircle } from 'react-icons/fa';
@@ -58,8 +58,7 @@ export default function App() {
         }
 
         try {
-            await axios.post(
-                "https://backendsistemainventario.onrender.com/api/Administrador/Logout", // Reemplaza con la URL real de tu API
+            await api.post( '/Administrador/Logout',
                 { refreshToken },
                 {
                     headers: {

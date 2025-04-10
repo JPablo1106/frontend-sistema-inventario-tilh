@@ -1,7 +1,7 @@
 import { useState } from "react"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import api from "../extras/axiosIntance"
 import Swal from "sweetalert2"
 import '../../styles/RegistrarEquipo.css'
 
@@ -138,8 +138,8 @@ const RegistrarEquipo = () => {
       })
 
       const token = localStorage.getItem("jwt")
-      const equipoResponse = await axios.post(
-        "https://backendsistemainventario.onrender.com/api/equipos/RegistrarEquipo",
+      const equipoResponse = await api.post(
+        "equipos/RegistrarEquipo",
         {
           marca,
           modelo,
