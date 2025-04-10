@@ -235,7 +235,7 @@ const RegistrarAsignacion = () => {
         timerProgressBar: true,
       }).then((result) => {
         if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
-          navigate("/asignaciones")
+          navigate("/asignaciones", {replace:true})
         }
       })
     } catch (error) {

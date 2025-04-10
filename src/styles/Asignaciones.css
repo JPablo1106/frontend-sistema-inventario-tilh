@@ -1,0 +1,141 @@
+/* styles/Style.css */
+
+/* General styles */
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+  }
+  
+  .container-fluid {
+    padding: 20px;
+  }
+  
+  /* Card styles */
+  .card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  /* Button styles */
+  .btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  .btn-outline-primary {
+    color: #007bff;
+    border: 1px solid #007bff;
+    background-color: transparent;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #e7f3ff;
+  }
+  
+  /* Table styles */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th,
+  .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* Form styles */
+  .form-control {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: none;
+  }
+  
+  /* Alert styles */
+  .alert {
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-color: #bee5eb;
+  }
+  
+  /* Pagination styles */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .pagination .page-link {
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 8px 12px;
+    text-decoration: none;
+    margin: 0 5px;
+    border-radius: 5px;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
+  
+  .pagination .page-item.disabled .page-link {
+    color: #ccc;
+    pointer-events: none;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Opcional, para un scroll más suave en dispositivos táctiles */
+  }

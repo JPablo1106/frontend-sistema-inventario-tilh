@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
@@ -117,7 +115,7 @@ const Usuarios = () => {
 
   const handleEdit = useCallback(
     (id) => {
-      navigate(`/usuarios/editar-usuario/${id}`)
+      navigate(`/usuarios/actualizar-usuario/${id}`)
     },
     [navigate],
   )

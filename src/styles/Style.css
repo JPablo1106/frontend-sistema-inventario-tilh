@@ -3,3 +3,9 @@
     padding: 0 15px;
     margin-bottom: 50px;
   }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Opcional, para un scroll más suave en dispositivos táctiles */
+  }
+  

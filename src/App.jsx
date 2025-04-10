@@ -9,7 +9,7 @@ import MenuList from './components/MenuList';
 import Dashboard from './components/Dashboard';
 import Usuarios from './components/usuarios/Usuarios';
 import RegistrarUsuario from './components/usuarios/RegistrarUsuario';
-import EditarUsuario from './components/usuarios/EditarUsuario';
+import ActualizarUsuario from './components/usuarios/ActualizarUsuario';
 import Equipos from './components/equipos/Equipos';
 import RegistrarEquipo from './components/equipos/RegistrarEquipo';
 import EquiposSeguridad from './components/equipos-seguridad/EquiposSeguridad';
@@ -43,7 +43,7 @@ export default function App() {
     }, [navigate]);
 
     // Obtener el nombre de usuario desde localStorage
-    const nombreAdmin = localStorage.getItem("nombreAdmin") || "Usuario";
+    const nombreAdmin = localStorage.getItem("nombreAdmin") || "usuario";
 
     // Manejo de cierre de sesión
     const handleLogout = async () => {
@@ -53,7 +53,7 @@ export default function App() {
         if (!refreshToken || !jwt) {
             console.error("No hay token disponible");
             localStorage.clear();
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
             return;
         }
 
@@ -71,12 +71,12 @@ export default function App() {
 
             // Limpiar el localStorage y redirigir
             localStorage.clear();
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
             // Limpiar localStorage incluso si la petición falla
             localStorage.clear();
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
         }
     };
 
@@ -131,7 +131,7 @@ export default function App() {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/usuarios" element={<Usuarios />} />
                         <Route path="/usuarios/registro-usuario" element={<RegistrarUsuario />} />
-                        <Route path="/usuarios/editar-usuario" element={<EditarUsuario />} />
+                        <Route path="/usuarios/actualizar-usuario/:idUsuario" element={<ActualizarUsuario />} />
                         <Route path="/equipos" element={<Equipos />} />
                         <Route path='/equipos/registro-equipo' element={<RegistrarEquipo />} />
                         <Route path='/equipos-seguridad' element={<EquiposSeguridad />} />

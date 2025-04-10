@@ -1,183 +1,256 @@
-import React, { useState, useEffect } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import Select from 'react-select';
-import { 
-  FaUserTie, FaLaptop, FaNetworkWired, FaCalendarAlt, FaPlusCircle, 
-  FaTrashAlt, FaPaperPlane, FaTimes 
-} from "react-icons/fa";
-import { BsPcDisplay } from "react-icons/bs";
-import '../../styles/RegistrarAsignacion.css';
+"use client"
+
+import { useState, useEffect } from "react"
+import "bootstrap/dist/css/bootstrap.min.css"
+import { useNavigate, useParams } from "react-router-dom"
+import axios from "axios"
+import Swal from "sweetalert2"
+import Select from "react-select"
+import {
+  FaUserTie,
+  FaLaptop,
+  FaNetworkWired,
+  FaCalendarAlt,
+  FaPlusCircle,
+  FaTrashAlt,
+  FaTimes,
+  FaInfoCircle,
+  FaArrowLeft,
+  FaClipboardList,
+  FaSave,
+} from "react-icons/fa"
+import { BsPcDisplay } from "react-icons/bs"
+import "../../styles/Formulario.css"
 
 const ActualizarAsignacion = () => {
-  const navigate = useNavigate();
-  const { id } = useParams(); // id de la asignación a editar
+  const navigate = useNavigate()
+  const { id } = useParams() // id de la asignación a editar
 
   // Estados para dropdowns
-  const [usuarios, setUsuarios] = useState([]);
-  const [equipos, setEquipos] = useState([]);
-  const [componentes, setComponentes] = useState([]);
-  const [equiposSeguridad, setEquiposSeguridad] = useState([]);
+  const [usuarios, setUsuarios] = useState([])
+  const [equipos, setEquipos] = useState([])
+  const [componentes, setComponentes] = useState([])
+  const [equiposSeguridad, setEquiposSeguridad] = useState([])
 
   // Estado del formulario; se inicializa con valores vacíos y se sobreescribe al obtener los datos
   const [formData, setFormData] = useState({
     idUsuario: null,
     idEquipo: null,
-    numSerieEquipo: '',
-    ipAddress: '',
-    ipCpuRed: '',
+    numSerieEquipo: "",
+    ipAddress: "",
+    ipCpuRed: "",
     fechaAsignacion: new Date().toISOString().slice(0, 10),
-    componentes: [{ tempId: Date.now(), idComponente: '', numSerieComponente: '' }],
-    dispositivosExt: [{ tempId: Date.now() + 1, marca: '', descripcion: '', numSerieDispExt: '' }],
-    idEquipoSeguridad: '',
-    numSerieEquipoSeg: ''
-  });
+    componentes: [{ tempId: Date.now(), idComponente: "", numSerieComponente: "" }],
+    dispositivosExt: [{ tempId: Date.now() + 1, marca: "", descripcion: "", numSerieDispExt: "" }],
+    idEquipoSeguridad: "",
+    numSerieEquipoSeg: "",
+  })
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
+  const [error, setError] = useState(false)
 
   // Configuración de headers con token
   const getAuthConfig = () => {
-    const token = localStorage.getItem("jwt");
-    return { headers: { Accept: "*/*", "Content-Type": "application/json", Authorization: `Bearer ${token}` } };
-  };
+    const token = localStorage.getItem("jwt")
+    return { headers: { Accept: "*/*", "Content-Type": "application/json", Authorization: `Bearer ${token}` } }
+  }
 
   // Cargar dropdowns
   useEffect(() => {
-    axios.get('https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarios', getAuthConfig())
-      .then(response => setUsuarios(response.data))
-      .catch(err => console.error('Error cargando usuarios', err));
+    const fetchData = async () => {
+      setLoadingData(true)
+      setError(false)
 
-    axios.get('https://backendsistemainventario.onrender.com/api/equipos/ConsultarEquipos', getAuthConfig())
-      .then(response => setEquipos(response.data))
-      .catch(err => console.error('Error cargando equipos', err));
+      try {
+        const [usuariosRes, equiposRes, componentesRes, equiposSeguridadRes] = await Promise.all([
+          axios.get("https://backendsistemainventario.onrender.com/api/usuarios/ConsultarUsuarios", getAuthConfig()),
+          axios.get("https://backendsistemainventario.onrender.com/api/equipos/ConsultarEquipos", getAuthConfig()),
+          axios.get(
+            "https://backendsistemainventario.onrender.com/api/Componentes/ConsultarComponentes",
+            getAuthConfig(),
+          ),
+          axios.get(
+            "https://backendsistemainventario.onrender.com/api/equiposSeguridad/ConsultarEquiposSeguridad",
+            getAuthConfig(),
+          ),
+        ])
 
-    axios.get('https://backendsistemainventario.onrender.com/api/Componentes/ConsultarComponentes', getAuthConfig())
-      .then(response => setComponentes(response.data))
-      .catch(err => console.error('Error cargando componentes', err));
+        setUsuarios(usuariosRes.data)
+        setEquipos(equiposRes.data)
+        setComponentes(componentesRes.data)
+        setEquiposSeguridad(equiposSeguridadRes.data)
+      } catch (error) {
+        console.error("Error cargando datos iniciales", error)
+        setError(true)
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudieron cargar los datos necesarios. Intente nuevamente.",
+          confirmButtonColor: "#3085d6",
+        })
+      }
+    }
 
-    axios.get('https://backendsistemainventario.onrender.com/api/equiposSeguridad/ConsultarEquiposSeguridad', getAuthConfig())
-      .then(response => setEquiposSeguridad(response.data))
-      .catch(err => console.error('Error cargando equipos de seguridad', err));
-  }, []);
+    fetchData()
+  }, [])
 
   // Cargar datos de la asignación a editar
   useEffect(() => {
-    setIsLoading(true);
-    axios.get(`https://backendsistemainventario.onrender.com/api/Asignaciones/ConsultarAsignacionId/${id}`, getAuthConfig())
-      .then(response => {
+    setLoadingData(true)
+    axios
+      .get(
+        `https://backendsistemainventario.onrender.com/api/Asignaciones/ConsultarAsignacionId/${id}`,
+        getAuthConfig(),
+      )
+      .then((response) => {
         // Se espera que la API retorne un objeto con la misma estructura del payload
-        const data = response.data;
+        const data = response.data
         setFormData({
           idUsuario: data.idUsuario,
           idEquipo: data.idEquipo,
-          numSerieEquipo: data.numSerieEquipo || '',
-          ipAddress: data.ipAddress || '',
-          ipCpuRed: data.ipCpuRed || '',
-          fechaAsignacion: data.fechaAsignacion ? new Date(data.fechaAsignacion).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
-          componentes: data.componentes && data.componentes.length > 0 
-                        ? data.componentes.map(comp => ({ ...comp, tempId: Date.now() + Math.random() }))
-                        : [{ tempId: Date.now(), idComponente: '', numSerieComponente: '' }],
-          dispositivosExt: data.dispositivosExt && data.dispositivosExt.length > 0 
-                        ? data.dispositivosExt.map(dev => ({ ...dev, tempId: Date.now() + Math.random() }))
-                        : [{ tempId: Date.now() + 1, marca: '', descripcion: '', numSerieDispExt: '' }],
-          idEquipoSeguridad: data.idEquipoSeguridad || '',
-          numSerieEquipoSeg: data.numSerieEquipoSeg || ''
-        });
+          numSerieEquipo: data.numSerieEquipo || "",
+          ipAddress: data.ipAddress || "",
+          ipCpuRed: data.ipCpuRed || "",
+          fechaAsignacion: data.fechaAsignacion
+            ? new Date(data.fechaAsignacion).toISOString().slice(0, 10)
+            : new Date().toISOString().slice(0, 10),
+          componentes:
+            data.componentes && data.componentes.length > 0
+              ? data.componentes.map((comp) => ({ ...comp, tempId: Date.now() + Math.random() }))
+              : [{ tempId: Date.now(), idComponente: "", numSerieComponente: "" }],
+          dispositivosExt:
+            data.dispositivosExt && data.dispositivosExt.length > 0
+              ? data.dispositivosExt.map((dev) => ({ ...dev, tempId: Date.now() + Math.random() }))
+              : [{ tempId: Date.now() + 1, marca: "", descripcion: "", numSerieDispExt: "" }],
+          idEquipoSeguridad: data.idEquipoSeguridad || "",
+          numSerieEquipoSeg: data.numSerieEquipoSeg || "",
+        })
       })
-      .catch(err => {
-        console.error('Error al cargar la asignación', err);
+      .catch((err) => {
+        console.error("Error al cargar la asignación", err)
+        setError(true)
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo cargar la asignación. Inténtalo nuevamente.'
-        });
+          icon: "error",
+          title: "Error",
+          text: "No se pudo cargar la asignación. Inténtalo nuevamente.",
+          confirmButtonColor: "#3085d6",
+        })
       })
-      .finally(() => setIsLoading(false));
-  }, [id]);
+      .finally(() => setLoadingData(false))
+  }, [id])
 
   // Opciones para react-select
   const usuariosOptions = usuarios
-    .filter(usuario => usuario.idUsuario != null)
-    .map(usuario => ({
+    .filter((usuario) => usuario.idUsuario != null)
+    .map((usuario) => ({
       value: usuario.idUsuario,
-      label: `${usuario.nombreUsuario} - ${usuario.area} - ${usuario.departamento}`
-    }));
+      label: `${usuario.nombreUsuario} - ${usuario.area} - ${usuario.departamento}`,
+    }))
 
   const equiposOptions = equipos
-    .filter(equipo => equipo.idEquipo != null)
-    .map(equipo => ({
+    .filter((equipo) => equipo.idEquipo != null)
+    .map((equipo) => ({
       value: equipo.idEquipo,
-      label: `${equipo.tipoEquipo} - ${equipo.marca} - ${equipo.modelo} - ${equipo.tipoProcesador}`
-    }));
+      label: `${equipo.tipoEquipo} - ${equipo.marca} - ${equipo.modelo} - ${equipo.tipoProcesador}`,
+    }))
 
   // Manejo de cambios en react-select
-  const handleUsuarioChange = selectedOption => {
-    setFormData(prev => ({ ...prev, idUsuario: selectedOption ? selectedOption.value : null }));
-  };
+  const handleUsuarioChange = (selectedOption) => {
+    setFormData((prev) => ({ ...prev, idUsuario: selectedOption ? selectedOption.value : null }))
+  }
 
-  const handleEquipoChange = selectedOption => {
-    setFormData(prev => ({ ...prev, idEquipo: selectedOption ? selectedOption.value : null }));
-  };
+  const handleEquipoChange = (selectedOption) => {
+    setFormData((prev) => ({ ...prev, idEquipo: selectedOption ? selectedOption.value : null }))
+  }
 
   // Manejo de inputs normales
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleComponentChange = (index, e) => {
-    const { name, value } = e.target;
-    const newComponents = [...formData.componentes];
-    newComponents[index][name] = value;
-    setFormData(prev => ({ ...prev, componentes: newComponents }));
-  };
+    const { name, value } = e.target
+    const newComponents = [...formData.componentes]
+    newComponents[index][name] = value
+    setFormData((prev) => ({ ...prev, componentes: newComponents }))
+  }
 
   const handleDeviceChange = (index, e) => {
-    const { name, value } = e.target;
-    const newDevices = [...formData.dispositivosExt];
-    newDevices[index][name] = value;
-    setFormData(prev => ({ ...prev, dispositivosExt: newDevices }));
-  };
+    const { name, value } = e.target
+    const newDevices = [...formData.dispositivosExt]
+    newDevices[index][name] = value
+    setFormData((prev) => ({ ...prev, dispositivosExt: newDevices }))
+  }
 
   // Genera un id único para componentes y dispositivos
-  const generateUniqueId = () => Date.now() + Math.random();
+  const generateUniqueId = () => Date.now() + Math.random()
 
   // Agregar fila de componente
   const addComponentRow = () => {
-    const newRow = { tempId: generateUniqueId(), idComponente: '', numSerieComponente: '' };
-    setFormData(prev => ({ ...prev, componentes: [...prev.componentes, newRow] }));
-  };
+    const newRow = { tempId: generateUniqueId(), idComponente: "", numSerieComponente: "" }
+    setFormData((prev) => ({ ...prev, componentes: [...prev.componentes, newRow] }))
+  }
 
   // Agregar fila de dispositivo externo
   const addDeviceRow = () => {
-    const newRow = { tempId: generateUniqueId(), marca: '', descripcion: '', numSerieDispExt: '' };
-    setFormData(prev => ({ ...prev, dispositivosExt: [...prev.dispositivosExt, newRow] }));
-  };
+    const newRow = { tempId: generateUniqueId(), marca: "", descripcion: "", numSerieDispExt: "" }
+    setFormData((prev) => ({ ...prev, dispositivosExt: [...prev.dispositivosExt, newRow] }))
+  }
 
   // Eliminar fila de componente
   const removeComponentRow = (tempId) => {
-    setFormData(prev => ({ ...prev, componentes: prev.componentes.filter(comp => comp.tempId !== tempId) }));
-  };
+    if (formData.componentes.length > 1) {
+      setFormData((prev) => ({ ...prev, componentes: prev.componentes.filter((comp) => comp.tempId !== tempId) }))
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Información",
+        text: "Debe mantener al menos un componente en la lista.",
+        confirmButtonColor: "#3085d6",
+      })
+    }
+  }
 
   // Eliminar fila de dispositivo
   const removeDeviceRow = (tempId) => {
-    setFormData(prev => ({ ...prev, dispositivosExt: prev.dispositivosExt.filter(dev => dev.tempId !== tempId) }));
-  };
+    if (formData.dispositivosExt.length > 1) {
+      setFormData((prev) => ({ ...prev, dispositivosExt: prev.dispositivosExt.filter((dev) => dev.tempId !== tempId) }))
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Información",
+        text: "Debe mantener al menos un dispositivo externo en la lista.",
+        confirmButtonColor: "#3085d6",
+      })
+    }
+  }
 
   // Envío del formulario para actualizar la asignación
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+
+    // Validación básica
+    if (!formData.idUsuario) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validación",
+        text: "Debe seleccionar un usuario para la asignación.",
+        confirmButtonColor: "#3085d6",
+      })
+      return
+    }
+
+    setIsLoading(true)
 
     // Filtrar filas completas
-    const componentesFiltrados = formData.componentes.filter(comp =>
-      comp.idComponente !== '' && comp.numSerieComponente.trim() !== ''
-    );
-    const dispositivosFiltrados = formData.dispositivosExt.filter(dev =>
-      dev.marca.trim() !== '' && dev.descripcion.trim() !== '' && dev.numSerieDispExt.trim() !== ''
-    );
+    const componentesFiltrados = formData.componentes.filter(
+      (comp) => comp.idComponente !== "" && comp.numSerieComponente.trim() !== "",
+    )
+    const dispositivosFiltrados = formData.dispositivosExt.filter(
+      (dev) => dev.marca.trim() !== "" && dev.descripcion.trim() !== "" && dev.numSerieDispExt.trim() !== "",
+    )
 
     const payload = {
       idAsignacion: Number(id),
@@ -187,331 +260,709 @@ const ActualizarAsignacion = () => {
       fechaAsignacion: new Date(formData.fechaAsignacion).toISOString(),
       ipAddress: formData.ipAddress,
       ipCpuRed: formData.ipCpuRed,
-      componentes: componentesFiltrados.map(comp => ({
+      componentes: componentesFiltrados.map((comp) => ({
         ...comp,
-        idComponente: comp.idComponente ? Number(comp.idComponente) : null
+        idComponente: comp.idComponente ? Number(comp.idComponente) : null,
       })),
       dispositivosExt: dispositivosFiltrados,
       idEquipoSeguridad: formData.idEquipoSeguridad ? Number(formData.idEquipoSeguridad) : null,
       numSerieEquipoSeg: formData.numSerieEquipoSeg,
-    };
+    }
 
     try {
       await axios.post(
-        'https://backendsistemainventario.onrender.com/api/Asignaciones/ActualizarAsignacion',
+        "https://backendsistemainventario.onrender.com/api/Asignaciones/ActualizarAsignacion",
         payload,
-        getAuthConfig()
-      );
+        getAuthConfig(),
+      )
       Swal.fire({
-        icon: 'success',
-        title: 'Asignación actualizada exitosamente',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      navigate('/asignaciones');
+        icon: "success",
+        title: "¡Asignación actualizada exitosamente!",
+        text: "Los cambios han sido guardados correctamente en el sistema.",
+        showConfirmButton: true,
+        confirmButtonText: "Continuar",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+      }).then((result) => {
+        if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+          navigate("/asignaciones", { replace: true })
+        }
+      })
     } catch (error) {
-      console.error('Error al actualizar la asignación', error);
+      console.error("Error al actualizar la asignación", error)
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo actualizar la asignación. Por favor, inténtalo de nuevo.'
-      });
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar la asignación. Por favor, inténtalo de nuevo.",
+        confirmButtonColor: "#3085d6",
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleCancel = () => {
-    navigate('/asignaciones');
-  };
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Perderás los cambios realizados",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "No, continuar",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-secondary",
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/asignaciones")
+      }
+    })
+  }
 
-  if(isLoading) {
+  if (loadingData) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="sr-only">Cargando...</span>
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center">
+            <div className="card shadow-lg border-0">
+              <div className="card-body p-5">
+                <div
+                  className="spinner-border text-primary mb-3"
+                  role="status"
+                  style={{ width: "3rem", height: "3rem" }}
+                >
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <h4 className="mb-3">Cargando datos de la asignación</h4>
+                <p className="text-muted">Por favor espere mientras obtenemos la información actualizada...</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="mt-2">Cargando datos...</p>
       </div>
-    );
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center">
+            <div className="card shadow-lg border-0 bg-light">
+              <div className="card-body p-5">
+                <FaInfoCircle className="text-danger mb-3" style={{ fontSize: "3rem" }} />
+                <h4 className="mb-3 text-danger">Error de conexión</h4>
+                <p className="text-muted mb-4">No se pudieron cargar los datos de la asignación.</p>
+                <button className="btn btn-primary" onClick={() => window.location.reload()}>
+                  <FaArrowLeft className="me-2" /> Volver a intentar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className='asignaciones-container'>
-      <nav aria-label="breadcrumb">
-        <ol className="breadcrumb bg-light px-3 py-2 rounded">
-          <li className="breadcrumb-item active" aria-current="page">
-            <h5>Asignaciones</h5>
-          </li>
-        </ol>
-      </nav>
-
-      <div className='card shadow-sm border-0 mt-3'>
-        <div className='card-header bg-success text-white'>
-          <h4 className='mb-0'>
-            <BsPcDisplay className='mr-2' />
-            Actualizar Asignación
-          </h4>
+    <div className="container-fluid mt-4">
+      <div className="row mb-4 align-items-center">
+        <div className="col-md-6">
+          <h2 className="fw-bold text-primary">
+            <FaClipboardList className="me-2" />
+            Actualización de Asignación
+          </h2>
+          <p className="text-muted">Modifique los datos de la asignación seleccionada</p>
         </div>
-        <div className='card-body'>
-          <form onSubmit={handleSubmit}>
-            {/* Datos Generales */}
-            <div className="mb-4">
-              <h5 className="mb-3"><FaUserTie className="mr-2" />Datos Generales</h5>
-              <div className="row">
-                <div className="form-group col-md-6">
-                  <label htmlFor="idUsuario" className="control-label">Usuario</label>
-                  <Select
-                    id="idUsuario"
-                    name="idUsuario"
-                    options={usuariosOptions}
-                    onChange={handleUsuarioChange}
-                    placeholder="Seleccione un usuario"
-                    value={usuariosOptions.find(option => option.value === formData.idUsuario) || null}
-                    isClearable
-                  />
-                </div>
-                <div className="form-group col-md-6">
-                  <label htmlFor="fechaAsignacion" className="control-label">Fecha de Asignación</label>
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text"><FaCalendarAlt /></span>
-                    </div>
-                    <input
-                      type="date"
-                      id="fechaAsignacion"
-                      name="fechaAsignacion"
-                      className="form-control"
-                      value={formData.fechaAsignacion}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Información del Equipo */}
-            <div className="mb-4">
-              <h5 className="mb-3"><FaLaptop className="mr-2" />Equipo</h5>
-              <div className="row">
-                <div className="form-group col-md-6">
-                  <label htmlFor="idEquipo" className="control-label">Equipo</label>
-                  <Select
-                    id="idEquipo"
-                    name="idEquipo"
-                    options={equiposOptions}
-                    onChange={handleEquipoChange}
-                    placeholder="Seleccione un equipo"
-                    value={equiposOptions.find(option => option.value === formData.idEquipo) || null}
-                    isClearable
-                  />
-                </div>
-                <div className="form-group col-md-6">
-                  <label htmlFor="numSerieEquipo" className="control-label">Número de Serie del Equipo</label>
-                  <input
-                    type="text"
-                    id="numSerieEquipo"
-                    name="numSerieEquipo"
-                    className="form-control"
-                    placeholder="Ingrese el número de serie"
-                    value={formData.numSerieEquipo}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div className="row mt-3">
-                <div className="form-group col-md-6">
-                  <label htmlFor="ipAddress" className="control-label">IP Address</label>
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text"><FaNetworkWired /></span>
-                    </div>
-                    <input
-                      type="text"
-                      id="ipAddress"
-                      name="ipAddress"
-                      className="form-control"
-                      placeholder="Ingrese la IP"
-                      value={formData.ipAddress}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-                <div className="form-group col-md-6">
-                  <label htmlFor="ipCpuRed" className="control-label">IP CPU Red</label>
-                  <input
-                    type="text"
-                    id="ipCpuRed"
-                    name="ipCpuRed"
-                    className="form-control"
-                    placeholder="Ingrese la IP CPU Red"
-                    value={formData.ipCpuRed}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Componentes */}
-            <div className="mb-4">
-              <h5 className="mb-3"><FaPlusCircle className="mr-2" />Componentes</h5>
-              {formData.componentes.map((comp, index) => (
-                <div className="row mb-2 align-items-center" key={comp.tempId}>
-                  <div className="form-group col-md-5">
-                    <select
-                      name="idComponente"
-                      className="form-control"
-                      value={comp.idComponente}
-                      onChange={(e) => handleComponentChange(index, e)}
-                      required
-                    >
-                      <option value="">Seleccione un componente</option>
-                      {componentes.length === 0 && <option>Sin componentes disponibles</option>}
-                      {componentes.filter(compItem => compItem.idComponente != null)
-                        .map(compItem => (
-                          <option key={compItem.idComponente} value={compItem.idComponente.toString()}>
-                            {compItem.tipoComponente} - {compItem.marcaComponente}
-                          </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group col-md-5">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Ingrese el número de serie"
-                      name="numSerieComponente"
-                      value={comp.numSerieComponente}
-                      onChange={(e) => handleComponentChange(index, e)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group col-md-2 text-center">
-                    <button type="button" className="btn btn-danger" onClick={() => removeComponentRow(comp.tempId)}>
-                      <FaTrashAlt />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button type="button" className="btn btn-secondary" onClick={addComponentRow}>
-                Agregar Componente
-              </button>
-            </div>
-
-            {/* Dispositivos Externos */}
-            <div className="mb-4">
-              <h5 className="mb-3"><FaPlusCircle className="mr-2" />Dispositivos Externos</h5>
-              {formData.dispositivosExt.map((dev, index) => (
-                <div className="row mb-2 align-items-center" key={dev.tempId}>
-                  <div className="form-group col-md-3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Marca"
-                      name="marca"
-                      value={dev.marca}
-                      onChange={(e) => handleDeviceChange(index, e)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group col-md-3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Descripción"
-                      name="descripcion"
-                      value={dev.descripcion}
-                      onChange={(e) => handleDeviceChange(index, e)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group col-md-3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Ingrese el número de serie"
-                      name="numSerieDispExt"
-                      value={dev.numSerieDispExt}
-                      onChange={(e) => handleDeviceChange(index, e)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group col-md-3 text-center">
-                    <button type="button" className="btn btn-danger" onClick={() => removeDeviceRow(dev.tempId)}>
-                      <FaTrashAlt />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button type="button" className="btn btn-secondary" onClick={addDeviceRow}>
-                Agregar Dispositivo Externo
-              </button>
-            </div>
-
-            {/* Equipo de Seguridad */}
-            <div className="mb-4">
-              <h5 className="mb-3"><FaLaptop className="mr-2" />Equipo de Seguridad</h5>
-              <div className="row">
-                <div className="form-group col-md-6">
-                  <label htmlFor="idEquipoSeguridad" className="control-label">Equipo de Seguridad</label>
-                  <select
-                    id="idEquipoSeguridad"
-                    name="idEquipoSeguridad"
-                    className="form-control"
-                    value={formData.idEquipoSeguridad}
-                    onChange={handleChange}
-                  >
-                    <option value="">Seleccione un equipo de seguridad</option>
-                    {equiposSeguridad.length === 0 && <option>Sin equipos de seguridad</option>}
-                    {equiposSeguridad.filter(equipoSeg => equipoSeg.idEquipoSeguridad != null)
-                      .map(equipoSeg => (
-                        <option key={equipoSeg.idEquipoSeguridad} value={equipoSeg.idEquipoSeguridad.toString()}>
-                          {equipoSeg.tipo} - {equipoSeg.marca} - {equipoSeg.modelo}
-                        </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group col-md-6">
-                  <label htmlFor="numSerieEquipoSeg" className="control-label">Número de Serie del Equipo de Seguridad</label>
-                  <input
-                    type="text"
-                    id="numSerieEquipoSeg"
-                    name="numSerieEquipoSeg"
-                    className="form-control"
-                    placeholder="Ingrese el número de serie"
-                    value={formData.numSerieEquipoSeg}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Botones de acción */}
-            <div className="form-actions mt-4 d-flex justify-content-between">
-              <button type="button" className="btn btn-outline-danger btn-lg" onClick={handleCancel}>
-                <FaTimes className="mr-2" />
-                Cancelar
-              </button>
-              <button type="submit" className="btn btn-primary btn-lg" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                    Procesando...
-                  </>
-                ) : (
-                  <>
-                    <FaPaperPlane className="mr-2" />
-                    Actualizar Asignación
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+        <div className="col-md-6 text-md-end">
+          <button className="btn btn-outline-secondary" onClick={() => navigate("/asignaciones")}>
+            <FaArrowLeft className="me-2" /> Volver a Asignaciones
+          </button>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default ActualizarAsignacion;
+      <div className="row">
+        <div className="col-12">
+          <div className="card shadow-sm border-0">
+            <div className="card-header bg-white py-3">
+              <div className="d-flex align-items-center">
+                <div
+                  className="icon-container rounded-circle d-flex align-items-center justify-content-center me-3"
+                  style={{
+                    backgroundColor: `rgba(0, 123, 255, 0.1)`,
+                    padding: "1rem",
+                    width: "50px",
+                    height: "50px",
+                    boxShadow: `0 0 15px rgba(0, 123, 255, 0.2)`,
+                  }}
+                >
+                  <BsPcDisplay
+                    style={{
+                      fontSize: "1.5rem",
+                      color: "#0d6efd",
+                      filter: "drop-shadow(0 0 2px rgba(0,0,0,0.2))",
+                    }}
+                  />
+                </div>
+                <h4 className="mb-0">Información de la Asignación</h4>
+              </div>
+            </div>
+            <div className="card-body p-4">
+              <form onSubmit={handleSubmit}>
+                {/* Datos Generales */}
+                <div className="section-title mb-3">
+                  <h5 className="text-primary">
+                    <FaUserTie className="me-2" />
+                    Datos Generales
+                  </h5>
+                  <hr className="mt-0" />
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="idUsuario" className="form-label fw-semibold">
+                        Usuario
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaUserTie />
+                        </span>
+                        <Select
+                          id="idUsuario"
+                          name="idUsuario"
+                          options={usuariosOptions}
+                          onChange={handleUsuarioChange}
+                          placeholder="Seleccione un usuario"
+                          value={usuariosOptions.find((option) => option.value === formData.idUsuario) || null}
+                          isClearable
+                          className="react-select-container flex-grow-1"
+                          classNamePrefix="react-select"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="fechaAsignacion" className="form-label fw-semibold">
+                        Fecha de Asignación
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaCalendarAlt />
+                        </span>
+                        <input
+                          type="date"
+                          id="fechaAsignacion"
+                          name="fechaAsignacion"
+                          className="form-control"
+                          value={formData.fechaAsignacion}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Información del Equipo */}
+                <div className="section-title mb-3 mt-4">
+                  <h5 className="text-primary">
+                    <FaLaptop className="me-2" />
+                    Equipo
+                  </h5>
+                  <hr className="mt-0" />
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="idEquipo" className="form-label fw-semibold">
+                        Equipo
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaLaptop />
+                        </span>
+                        <Select
+                          id="idEquipo"
+                          name="idEquipo"
+                          options={equiposOptions}
+                          onChange={handleEquipoChange}
+                          placeholder="Seleccione un equipo"
+                          value={equiposOptions.find((option) => option.value === formData.idEquipo) || null}
+                          isClearable
+                          className="react-select-container flex-grow-1"
+                          classNamePrefix="react-select"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="numSerieEquipo" className="form-label fw-semibold">
+                        Número de Serie del Equipo
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaClipboardList />
+                        </span>
+                        <input
+                          type="text"
+                          id="numSerieEquipo"
+                          name="numSerieEquipo"
+                          className="form-control"
+                          placeholder="Ingrese el número de serie"
+                          value={formData.numSerieEquipo}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="ipAddress" className="form-label fw-semibold">
+                        IP Address
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaNetworkWired />
+                        </span>
+                        <input
+                          type="text"
+                          id="ipAddress"
+                          name="ipAddress"
+                          className="form-control"
+                          placeholder="Ingrese la IP"
+                          value={formData.ipAddress}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="ipCpuRed" className="form-label fw-semibold">
+                        IP CPU Red
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaNetworkWired />
+                        </span>
+                        <input
+                          type="text"
+                          id="ipCpuRed"
+                          name="ipCpuRed"
+                          className="form-control"
+                          placeholder="Ingrese la IP CPU Red"
+                          value={formData.ipCpuRed}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Componentes */}
+                <div className="section-title mb-3 mt-4">
+                  <h5 className="text-primary">
+                    <FaPlusCircle className="me-2" />
+                    Componentes
+                  </h5>
+                  <hr className="mt-0" />
+                </div>
+
+                {formData.componentes.map((comp, index) => (
+                  <div className="row mb-3 align-items-center" key={comp.tempId}>
+                    <div className="col-md-5">
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-text bg-light">
+                            <FaPlusCircle />
+                          </span>
+                          <select
+                            name="idComponente"
+                            className="form-select"
+                            value={comp.idComponente}
+                            onChange={(e) => handleComponentChange(index, e)}
+                            required
+                          >
+                            <option value="">Seleccione un componente</option>
+                            {componentes.length === 0 && <option>Sin componentes disponibles</option>}
+                            {componentes
+                              .filter((compItem) => compItem.idComponente != null)
+                              .map((compItem) => (
+                                <option key={compItem.idComponente} value={compItem.idComponente.toString()}>
+                                  {compItem.tipoComponente} - {compItem.marcaComponente}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-5">
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-text bg-light">
+                            <FaClipboardList />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Ingrese el número de serie"
+                            name="numSerieComponente"
+                            value={comp.numSerieComponente}
+                            onChange={(e) => handleComponentChange(index, e)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-2 text-center">
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => removeComponentRow(comp.tempId)}
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="mb-4">
+                  <button type="button" className="btn btn-outline-primary" onClick={addComponentRow}>
+                    <FaPlusCircle className="me-2" /> Agregar Componente
+                  </button>
+                </div>
+
+                {/* Dispositivos Externos */}
+                <div className="section-title mb-3 mt-4">
+                  <h5 className="text-primary">
+                    <FaPlusCircle className="me-2" />
+                    Dispositivos Externos
+                  </h5>
+                  <hr className="mt-0" />
+                </div>
+
+                {formData.dispositivosExt.map((dev, index) => (
+                  <div className="row mb-3 align-items-center" key={dev.tempId}>
+                    <div className="col-md-3">
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-text bg-light">
+                            <FaInfoCircle />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Marca"
+                            name="marca"
+                            value={dev.marca}
+                            onChange={(e) => handleDeviceChange(index, e)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-text bg-light">
+                            <FaInfoCircle />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Descripción"
+                            name="descripcion"
+                            value={dev.descripcion}
+                            onChange={(e) => handleDeviceChange(index, e)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-text bg-light">
+                            <FaClipboardList />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Número de serie"
+                            name="numSerieDispExt"
+                            value={dev.numSerieDispExt}
+                            onChange={(e) => handleDeviceChange(index, e)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-2 text-center">
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => removeDeviceRow(dev.tempId)}
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="mb-4">
+                  <button type="button" className="btn btn-outline-primary" onClick={addDeviceRow}>
+                    <FaPlusCircle className="me-2" /> Agregar Dispositivo Externo
+                  </button>
+                </div>
+
+                {/* Equipo de Seguridad */}
+                <div className="section-title mb-3 mt-4">
+                  <h5 className="text-primary">
+                    <FaLaptop className="me-2" />
+                    Equipo de Seguridad
+                  </h5>
+                  <hr className="mt-0" />
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="idEquipoSeguridad" className="form-label fw-semibold">
+                        Equipo de Seguridad
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaLaptop />
+                        </span>
+                        <select
+                          id="idEquipoSeguridad"
+                          name="idEquipoSeguridad"
+                          className="form-select"
+                          value={formData.idEquipoSeguridad}
+                          onChange={handleChange}
+                        >
+                          <option value="">Seleccione un equipo de seguridad</option>
+                          {equiposSeguridad.length === 0 && <option>Sin equipos de seguridad</option>}
+                          {equiposSeguridad
+                            .filter((equipoSeg) => equipoSeg.idEquipoSeguridad != null)
+                            .map((equipoSeg) => (
+                              <option key={equipoSeg.idEquipoSeguridad} value={equipoSeg.idEquipoSeguridad.toString()}>
+                                {equipoSeg.tipo} - {equipoSeg.marca} - {equipoSeg.modelo}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-3">
+                      <label htmlFor="numSerieEquipoSeg" className="form-label fw-semibold">
+                        Número de Serie del Equipo de Seguridad
+                      </label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light">
+                          <FaClipboardList />
+                        </span>
+                        <input
+                          type="text"
+                          id="numSerieEquipoSeg"
+                          name="numSerieEquipoSeg"
+                          className="form-control"
+                          placeholder="Ingrese el número de serie"
+                          value={formData.numSerieEquipoSeg}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="alert alert-info d-flex align-items-center mt-4" role="alert">
+                  <FaInfoCircle className="me-2" />
+                  <div>
+                    <strong>Información:</strong> Complete todos los campos obligatorios para actualizar la asignación.
+                    Asegúrese de seleccionar al menos un usuario y completar los detalles de los componentes y
+                    dispositivos.
+                  </div>
+                </div>
+
+                {/* Botones de acción */}
+                <div className="d-flex justify-content-between mt-4">
+                  <button type="button" className="btn btn-outline-danger" onClick={handleCancel}>
+                    <FaTimes className="me-2" /> Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                    {isLoading ? (
+                      <span>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Procesando...
+                      </span>
+                    ) : (
+                      <span>
+                        <FaSave className="me-2" /> Actualizar Asignación
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        /* Estilos para las tarjetas */
+        .card {
+          transition: all 0.3s ease;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        
+        .card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Estilos para los contenedores de iconos */
+        .icon-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card:hover .icon-container {
+          transform: scale(1.1);
+        }
+        
+        /* Estilos para los botones */
+        .btn {
+          border-radius: 8px;
+          padding: 0.5rem 1.25rem;
+          font-weight: 500;
+          transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Estilos para los títulos */
+        h2.fw-bold {
+          position: relative;
+          padding-bottom: 10px;
+        }
+        
+        h2.fw-bold:after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 50px;
+          height: 3px;
+          background-color: var(--bs-primary);
+          border-radius: 3px;
+        }
+        
+        /* Estilos para las alertas */
+        .alert {
+          border-radius: 10px;
+          border-left-width: 4px;
+        }
+        
+        /* Estilos para los campos de formulario */
+        .form-control,
+        .form-select {
+          border-radius: 8px;
+          padding: 0.6rem 1rem;
+          transition: all 0.2s ease;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        
+        .input-group-text {
+          border-top-left-radius: 8px;
+          border-bottom-left-radius: 8px;
+        }
+        
+        /* Estilos para el spinner de carga */
+        .spinner-border {
+          animation-duration: 1.5s;
+        }
+        
+        /* Estilos para los mensajes de error */
+        .invalid-feedback {
+          font-size: 0.85rem;
+          margin-top: 0.25rem;
+        }
+        
+        /* Estilos para las etiquetas de formulario */
+        .form-label {
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #495057;
+        }
+        
+        /* Estilos para las secciones del formulario */
+        .section-title h5 {
+          font-weight: 600;
+        }
+        
+        .section-title hr {
+          opacity: 0.2;
+          margin-bottom: 1rem;
+        }
+        
+        /* Estilos para react-select */
+        .react-select-container .react-select__control {
+          border-radius: 8px;
+          border-color: #ced4da;
+          box-shadow: none;
+          transition: all 0.2s ease;
+        }
+        
+        .react-select-container .react-select__control:hover {
+          border-color: #adb5bd;
+        }
+        
+        .react-select-container .react-select__control--is-focused {
+          border-color: #86b7fe;
+          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        
+        .react-select-container .react-select__menu {
+          border-radius: 8px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .react-select-container .react-select__option--is-selected {
+          background-color: #0d6efd;
+        }
+        
+        .react-select-container .react-select__option:hover {
+          background-color: rgba(13, 110, 253, 0.1);
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default ActualizarAsignacion
